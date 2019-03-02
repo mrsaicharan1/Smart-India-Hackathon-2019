@@ -1,9 +1,13 @@
 import re
 import nltk
 import bs4 as bs   
-
+import uuid
 from extract_ppt import ppt_to_text
 import urllib.request
+
+from firebase import firebase
+
+firebase = firebase.FirebaseApplication('https://reddys-4fd1a.firebaseio.com', None)
 
 class AppURLopener(urllib.request.FancyURLopener):
     version = "Mozilla/5.0"
@@ -20,6 +24,20 @@ articles = ['https://www.everydayhealth.com/drugs/acetylcysteine',
             'https://www.practo.com/medicine-info/ambroxol-530-api', 'https://en.wikipedia.org/wiki/Ambroxol', 'https://clinicaltrials.gov/ct2/show/NCT03415269',
             'https://en.wikipedia.org/wiki/Cetirizine', 'https://www.who.int/csr/disease/coronavirus_infections/faq/en/','https://www.cdc.gov/healthcommunication/toolstemplates/entertainmented/tips/ChronicRespiratoryDisease.html',
             'https://www.webmd.com/lung/copd/10-faqs-about-living-with-copd#1']
+
+
+def update_database(article_link, parsed_article, keywords, summary):
+    data = {
+        'document_id': str(uuid.uuid4()),
+        'link': article_link,
+        'topic': parsed_article.title.text,
+        'keywords': keywords,
+        'summarized_text': summary
+    }
+    result = firebase.post("/update", data)
+    print(data)
+    print('-------------------------------------------')
+    print('-------------------------------------------')
 
 
 for article in articles:
@@ -98,3 +116,4 @@ for article in articles:
     print(keywords_yay)
 
     print("----------------------------------------")
+    update_database(article, parsed_article, keywords_yay, summary)
