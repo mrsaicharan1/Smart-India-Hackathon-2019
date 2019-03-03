@@ -7,6 +7,8 @@ import urllib.request
 import datetime
 import random
 from firebase import firebase
+import pandas as pd
+import matplotlib.pyplot as pyplot
 
 firebase = firebase.FirebaseApplication('https://reddys-4fd1a.firebaseio.com', None)
 
@@ -24,7 +26,14 @@ articles = {"respiratory": ['https://www.everydayhealth.com/drugs/acetylcysteine
             'https://www.healthline.com/health/home-treatments-for-shortness-of-breath', 'https://prowersmedical.com/solutions-for-lung-disease-and-breathing-problems/',
             'https://www.practo.com/medicine-info/ambroxol-530-api', 'https://en.wikipedia.org/wiki/Ambroxol', 'https://clinicaltrials.gov/ct2/show/NCT03415269',
             'https://en.wikipedia.org/wiki/Cetirizine', 'https://www.who.int/csr/disease/coronavirus_infections/faq/en/','https://www.cdc.gov/healthcommunication/toolstemplates/entertainmented/tips/ChronicRespiratoryDisease.html',
-            'https://www.webmd.com/lung/copd/10-faqs-about-living-with-copd#1'],
+            'https://www.webmd.com/lung/copd/10-faqs-about-living-with-copd#1',
+            'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2876696/','https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5709795/',
+            'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5455070/',
+            'https://www.health.harvard.edu/mind-and-mood/relaxation-techniques-breath-control-helps-quell-errant-stress-response',
+            'https://emmaseppala.com/benefits-breathing-scientific-benefits-breathing-infographic/',
+            'https://blog.bulletproof.com/breathing-sharpens-brain-study/',
+            'https://www.nytimes.com/2018/11/20/well/mind/breathing-through-the-nose-may-offer-unique-brain-benefits.html',
+            'https://www.livescience.com/22616-respiratory-system.html'],
             "dermatology": ['https://www.practo.com/medicine-info/aciclovir-6-api',
                             'https://en.wikipedia.org/wiki/Aciclovir',
                             'https://www.medicines.org.uk/emc/product/4334/smpc',
@@ -60,8 +69,19 @@ def update_database(class_type, article_link, parsed_article, keywords, summary)
     print('-------------------------------------------')
     print('-------------------------------------------')
 
+
+
+
+#heatmap generation
+heatmap = {}
+
+
+
+
+
 def extract_summary_and_keywords(articles_dict):
     for article_key,article_value in articles_dict.items():
+        heatmap[article_key] = []
         for link in article_value:
             try:
                 scraped_data = opener.open(link)
@@ -129,19 +149,24 @@ def extract_summary_and_keywords(articles_dict):
             summary = re.sub('[^a-zA-Z]', ' ', summary)  
             summary = re.sub(r'\s+', ' ', summary)
 
-            print(summary)
-            print("----------------------------------------")
-            print("----------------------------------------")
-            print("----------------------------------------")
-            print("----------------------------------------")
+            # print(summary)
+            # print("----------------------------------------")
+            # print("----------------------------------------")
+            # print("----------------------------------------")
+            # print("----------------------------------------")
 
             from rake_nltk import Rake
             r = Rake()
             r.extract_keywords_from_text(raw_data)
             keywords_yay = r.get_ranked_phrases()
-            print(keywords_yay)
+            # print(keywords_yay)
+            heatmap[article_key].append(keywords_yay)
 
             print("----------------------------------------")
-            update_database(article_key, link, parsed_article, keywords_yay, summary)
+            # update_database(article_key, link, parsed_article, keywords_yay, summary)
 
-# extract_summary_and_keywords(articles)
+extract_summary_and_keywords(articles)
+# print(heatmap)
+df = pd.DataFrame(heatmap)
+print(df)
+
