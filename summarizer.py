@@ -2,11 +2,11 @@ import re
 import nltk
 import bs4 as bs   
 import uuid
-from extract_ppt import ppt_to_text
 import urllib.request
 import datetime
 import random
 from firebase import firebase
+import pdftotext
 
 firebase = firebase.FirebaseApplication('https://reddys-4fd1a.firebaseio.com', None)
 
@@ -90,6 +90,20 @@ def update_database(class_type, article_link, parsed_article, keywords, summary)
     print(data)
     print('-------------------------------------------')
     print('-------------------------------------------')
+
+def update_database_from_pdf(class_type, article_link, keywords, summary):
+    groups = ['low', 'high','medium', 'lowmedium', 'mediumhigh']
+    data = {
+        'timestamp': datetime.datetime.now(),
+        'document_id': str(uuid.uuid4()), #csv required
+        'link': article_link, #csv required
+        'topic': 'Uploaded File', #csv required
+        'class_type': class_type, #csv required
+        'keywords': keywords,
+        'summarized_text': summary,
+        'group': random.choice(groups)
+    }
+    result = firebase.post("/update", data)
 
 def extract_summary_and_keywords(articles_dict):
     for article_key,article_value in articles_dict.items():
@@ -175,4 +189,84 @@ def extract_summary_and_keywords(articles_dict):
             print("----------------------------------------")
             update_database(article_key, link, parsed_article, keywords_yay, summary)
 
-extract_summary_and_keywords(articles)
+
+def extract_summary_and_keywords_from_pdf(articles_dict):
+    for article_key,article_value in articles_dict.items():
+        link = article_value
+        with open(link, "rb") as f:
+            pdf = pdftotext.PDF(f)    
+        article_text = ""
+
+        for p in pdf:  
+            article_text += p
+
+        raw_data = article_text
+        # Removing Square Brackets and Extra Spaces
+        article_text = re.sub(r'\[[0-9]*\]', ' ', article_text)  
+        article_text = re.sub(r'\s+', ' ', article_text)
+
+        # Removing special characters and digits
+        formatted_article_text = re.sub('[^a-zA-Z]', ' ', article_text )  
+        formatted_article_text = re.sub(r'\s+', ' ', formatted_article_text)
+
+        sentence_list = nltk.sent_tokenize(article_text)  
+
+        stopwords = nltk.corpus.stopwords.words('english')
+
+        word_frequencies = {}  
+        for word in nltk.word_tokenize(formatted_article_text):  
+            if word not in stopwords:
+                if word not in word_frequencies.keys():
+                    word_frequencies[word] = 1
+                else:
+                    word_frequencies[word] += 1
+
+        try:
+            maximum_frequncy = max(word_frequencies.values())
+        except Exception as e:
+            continue
+
+
+        for word in word_frequencies.keys():  
+            word_frequencies[word] = (word_frequencies[word]/maximum_frequncy)
+
+
+        sentence_scores = {}  
+        for sent in sentence_list:  
+            for word in nltk.word_tokenize(sent.lower()):
+                if word in word_frequencies.keys():
+                    if len(sent.split(' ')) < 30:
+                        if sent not in sentence_scores.keys():
+                            sentence_scores[sent] = word_frequencies[word]
+                        else:
+                            sentence_scores[sent] += word_frequencies[word]
+
+        import heapq  
+        summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
+
+        summary = ' '.join(summary_sentences)  
+
+        # Removing Square Brackets and Extra Spaces
+        summary = re.sub(r'\[[0-9]*\]', ' ', summary)  
+        summary = re.sub(r'\s+', ' ', summary)
+
+        # Removing special characters and digits
+        summary = re.sub('[^a-zA-Z]', ' ', summary)  
+        summary = re.sub(r'\s+', ' ', summary)
+
+        print(summary)
+        print("----------------------------------------")
+        print("----------------------------------------")
+        print("----------------------------------------")
+        print("----------------------------------------")
+
+        from rake_nltk import Rake
+        r = Rake()
+        r.extract_keywords_from_text(raw_data)
+        keywords_yay = r.get_ranked_phrases()
+        print(keywords_yay)
+
+        print("----------------------------------------")
+        update_database_from_pdf(article_key, link, keywords_yay, summary)
+
+# extract_summary_and_keywords(articles)

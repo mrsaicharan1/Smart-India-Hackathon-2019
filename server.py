@@ -1,5 +1,5 @@
 from flask import Flask, request
-from summarizer import extract_summary_and_keywords
+from summarizer import extract_summary_and_keywords_from_pdf
 from firebase import firebase
 import csv
 import json
@@ -8,19 +8,20 @@ app = Flask(__name__)
 
 firebase = firebase.FirebaseApplication('https://reddys-4fd1a.firebaseio.com', None)
 
-@app.route("/upload_file/<class_type>/<uploaded_file>",methods=['POST', 'GET'])
-def upload_file(class_type, uploaded_file):
+@app.route("/upload_file",methods=['POST'])
+def upload_file():
     """Upload file, extract knowledge and post to firebase"""
     if request.method == 'POST':
-        f = request.files['file']
-        f.save(secure_filename(f.filename))
-        path = os.path.dirname(os.path.abspath(f))
+        class_type = request.form['classType']
+        f = request.files['uploadedFile']
+        f.save(f.filename)
+        path = 'reports/docs/{}'.format(f.filename)
         knowledge_dict = {class_type:path}
-        extract_summary_and_keywords(knowledge_dict)
-        return 200
+        extract_summary_and_keywords_from_pdf(knowledge_dict)
+        return str(200)
 
-@app.route("/classes_csv",methods=['POST', 'GET'])
-def classes_csv():
+@app.route("/classes_csv_molecules",methods=['POST', 'GET'])
+def classes_csv_molecules():
     x = firebase.get('/update', "")
     # data_json = json.dumps(data_dict)
     # x = json.loads(data_json)
@@ -34,6 +35,15 @@ def classes_csv():
                 value["link"],
                 value["class_type"]])
     return str(200)
+
+@app.route("/classes_csv_therapy", methods=['POST', 'GET'])
+def classes_csv_therapy():
+        x = firebase.get('/update', "")
+        print(x.keys()[0])
+
+        return 'good'
+
+
 
 
 
