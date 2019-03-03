@@ -7,8 +7,6 @@ import urllib.request
 import datetime
 import random
 from firebase import firebase
-import pandas as pd
-import matplotlib.pyplot as pyplot
 
 firebase = firebase.FirebaseApplication('https://reddys-4fd1a.firebaseio.com', None)
 
@@ -17,7 +15,7 @@ class AppURLopener(urllib.request.FancyURLopener):
 
 opener = AppURLopener()
 # article_text = ppt_to_text()
-articles = {"respiratory": ['https://www.everydayhealth.com/drugs/acetylcysteine',
+articles = {"Respiratory": ['https://www.everydayhealth.com/drugs/acetylcysteine',
             'https://www.empr.com/drug/acetylcysteine-solution-for-inhalation/',
             'https://en.wikipedia.org/wiki/Acetylcysteine',
             'https://dailymed.nlm.nih.gov/dailymed/fda/fdaDrugXsl.cfm?setid=5558a5f5-e821-473b-7d8a-5d33d09f0586&type=display',
@@ -34,7 +32,7 @@ articles = {"respiratory": ['https://www.everydayhealth.com/drugs/acetylcysteine
             'https://blog.bulletproof.com/breathing-sharpens-brain-study/',
             'https://www.nytimes.com/2018/11/20/well/mind/breathing-through-the-nose-may-offer-unique-brain-benefits.html',
             'https://www.livescience.com/22616-respiratory-system.html'],
-            "dermatology": ['https://www.practo.com/medicine-info/aciclovir-6-api',
+            "Dermatology": ['https://www.practo.com/medicine-info/aciclovir-6-api',
                             'https://en.wikipedia.org/wiki/Aciclovir',
                             'https://www.medicines.org.uk/emc/product/4334/smpc',
                             'http://www.dermatologist.org.uk/dermatology-faqs.html',
@@ -43,19 +41,43 @@ articles = {"respiratory": ['https://www.everydayhealth.com/drugs/acetylcysteine
                             'https://en.wikipedia.org/wiki/Miconazole','https://www.practo.com/medicine-info/miconazole-2-cream-25192',
                             'https://en.wikipedia.org/wiki/Clotrimazole','https://www.drugs.com/cdi/clotrimazole-cream-ointment-and-solution.html',
                             'https://aidsinfo.nih.gov/drugs/474/clotrimazole/0/patient'],
-            "anti-infective": ['https://www.drugs.com/drug-class/anti-infectives.html',
+            "AntiInfective": ['https://www.drugs.com/drug-class/anti-infectives.html',
                                 'https://www.practo.com/medicine-info/aciclovir-6-api',
                                 'https://en.wikipedia.org/wiki/Aciclovir','https://www.medicines.org.uk/emc/product/4334/smpc',
                                 'https://de.wikipedia.org/wiki/Clavulans%C3%A4ure','https://chealth.canoe.com/drug/getdrug/amoxi-clav',
-                                'https://www.rxlist.com/diflucan-drug.htm#dosage']
+                                'https://www.rxlist.com/diflucan-drug.htm#dosage'],
+            "Cardiovascular": ['https://jeanhailes.org.au/health-a-z/cardiovascular-health/management-treatment',
+                               'https://www.thedacare.org/Health-Library-and-Conditions/cardiovascular/take-charge/Cardiovascular-Disease-Prevention-and-Management.aspx',
+                               'https://health.ucsd.edu/specialties/cardiovascular/programs/disease-management/pages/default.aspx',
+                               'https://www.ncbi.nlm.nih.gov/pubmed/11276761',
+                               'https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.113.002105',
+                               'https://www.medicalnewstoday.com/articles/257484.php',
+                               'https://www.medicalnewstoday.com/articles/257484.php',
+                               'https://www.medicalnewstoday.com/articles/324526.php',
+                               'https://www.medicalnewstoday.com/articles/324513.php',
+                               'https://www.medicalnewstoday.com/articles/324509.php',
+                               'https://www.endocrinologyadvisor.com/home/topics/cardiovascular-and-metabolic-disorders/',
+                               'https://www.nature.com/articles/d41586-019-00393-6',
+                               'https://www.medicalnewstoday.com/articles/324486.php'],
+            "GastroIntestinal": ['https://www.dovepress.com/everolimus-for-the-treatment-of-advanced-gastrointestinal-or-lung-nonf-peer-reviewed-article-OTT',
+                                'https://www.timesnownews.com/health/article/2000-unknown-bacteria-species-found-in-human-gut/364509',
+                                'https://economictimes.indiatimes.com/magazines/panache/suffering-from-gastrointestinal-issues-say-no-to-milk-legumes/articleshow/68047430.cms',
+                                'https://www.gastroendonews.com/Clinical-Review/Article/02-19/Endoscopic-Imaging-for-Neoplastic-Lesions-in-the-Upper-Gastrointestinal-Tract/54088',
+                                'https://oaktribune.com/2019/02/28/peptide-based-gastrointestinal-disorders-therapeutics-market-positive-long-term-growth-outlook-2018-2026/',
+                                'https://www.news-medical.net/news/20190215/Celiac-disease-may-be-caused-by-gastrointestinal-infection-in-childhood.aspx',
+                                'https://www.dovepress.com/management-of-low-rectal-gastrointestinal-stromal-tumor-with-neoadjuva-peer-reviewed-article-IJGM',
+                                'https://www.dovepress.com/everolimus-for-the-treatment-of-advanced-gastrointestinal-or-lung-nonf-peer-reviewed-article-OTT']
 }
+
+
+# print randomDate("1/1/2008 1:30 PM", "1/1/2009 4:50 AM", random.random())
 
 def get_article_list():
     return articles 
 def update_database(class_type, article_link, parsed_article, keywords, summary):
     groups = ['low', 'high','medium', 'lowmedium', 'mediumhigh']
     data = {
-        'timestamp': datetime.datetime.now(),
+        'timestamp': datetime.date(random.randint(2014,2019), random.randint(1,12), random.randint(1,28)),
         'document_id': str(uuid.uuid4()), #csv required
         'link': article_link, #csv required
         'topic': parsed_article.title.text, #csv required
@@ -69,19 +91,8 @@ def update_database(class_type, article_link, parsed_article, keywords, summary)
     print('-------------------------------------------')
     print('-------------------------------------------')
 
-
-
-
-#heatmap generation
-heatmap = {}
-
-
-
-
-
 def extract_summary_and_keywords(articles_dict):
     for article_key,article_value in articles_dict.items():
-        heatmap[article_key] = []
         for link in article_value:
             try:
                 scraped_data = opener.open(link)
@@ -149,24 +160,19 @@ def extract_summary_and_keywords(articles_dict):
             summary = re.sub('[^a-zA-Z]', ' ', summary)  
             summary = re.sub(r'\s+', ' ', summary)
 
-            # print(summary)
-            # print("----------------------------------------")
-            # print("----------------------------------------")
-            # print("----------------------------------------")
-            # print("----------------------------------------")
+            print(summary)
+            print("----------------------------------------")
+            print("----------------------------------------")
+            print("----------------------------------------")
+            print("----------------------------------------")
 
             from rake_nltk import Rake
             r = Rake()
             r.extract_keywords_from_text(raw_data)
             keywords_yay = r.get_ranked_phrases()
-            # print(keywords_yay)
-            heatmap[article_key].append(keywords_yay)
+            print(keywords_yay)
 
             print("----------------------------------------")
-            # update_database(article_key, link, parsed_article, keywords_yay, summary)
+            update_database(article_key, link, parsed_article, keywords_yay, summary)
 
 extract_summary_and_keywords(articles)
-# print(heatmap)
-df = pd.DataFrame(heatmap)
-print(df)
-
