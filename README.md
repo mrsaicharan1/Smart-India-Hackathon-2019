@@ -20,6 +20,6 @@ Implementation of intelligent natural language search for all the unstructured R
 - Enabled interactive data exploration for all the data.
 - Feature to dynamically update all the stats and results with increasing data by applying classification using Naive Bayes.
 
-We are also currently in talks with Dr.Reddy’s to take this forward.
+We are also currently in talks with Dr.Reddy’s to take this onto the production level.
 
 #### Won the I prize at Smart India Hackathon'19, The World's Largest Hackathon ! :fire:
