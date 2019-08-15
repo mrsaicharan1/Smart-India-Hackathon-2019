@@ -1,7 +1,7 @@
 # Smart India Hackathon 2019
 
 ## Problem Statement: 
-Implementation of intelligent natural language search for all the unstructured R&D data at Dr. Reddy's Labs.
+Implementation of intelligent natural language seaarch for all the unstructured R&D data at Dr. Reddy's Labs.
 
 ### **Team**: Bit N' Bytes
 
