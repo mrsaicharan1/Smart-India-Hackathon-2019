@@ -59,7 +59,7 @@ python-pentabarf-xml==0.19
 python-pptx==0.6.17
 pytz==2018.9
 pyxdg==0.25
-PyYAML==4.2b4
+PyYAML==5.4
 qrcode==5.3
 rake-nltk==1.0.4
 raven==6.10.0
